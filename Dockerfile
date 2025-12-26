@@ -1,40 +1,58 @@
-ARG BASE_VERSION=3.8.2-alpine3.11
-FROM python:${BASE_VERSION}
-
-# set version label
-ARG MYLAR_COMMIT=v0.3.0
-ARG ORG=mylar3
-LABEL version ${BASE_VERSION}_${MYLAR_COMMIT}
+FROM ubuntu:jammy
+ARG DEBIAN_FRONTEND="noninteractive"
+ARG MYLAR3_RELEASE="v0.8.3"
 
 RUN \
-echo "**** install system packages ****" && \
- apk add --no-cache \
- git=2.24.4-r0 \
- # cfscrape dependecies
- nodejs=12.22.6-r0 \
- # unrar-cffi & Pillow dependencies
- build-base=0.5-r1 \
- # unar-cffi dependencies
- libffi-dev=3.2.1-r6 \
- # Pillow dependencies
- zlib-dev=1.2.11-r5 \
- jpeg-dev=8-r6
+  echo "**** install build dependencies ****" && \
+  apt-get update && \
+  apt-get install -y --no-install-recommends \
+    build-essential \
+    libffi-dev \
+    libjpeg9-dev \
+    libwebp-dev \
+    python3-dev \
+    zlib1g-dev && \
+  echo "**** install runtime packages ****" && \
+  apt-get install -y --no-install-recommends \
+    libjpeg9 \
+    nodejs \
+    python3-venv \
+    webp \
+    unrar \
+    zlib1g-dev && \
+  echo "**** install mylar3 ****" && \
+  if [ -z ${MYLAR3_RELEASE+x} ]; then \
+    MYLAR3_RELEASE=$(curl -sX GET https://api.github.com/repos/mylar3/mylar3/releases/latest \
+    | awk '/tag_name/{print $4;exit}' FS='[""]'); \
+  fi && \
+  mkdir /app/mylar3 && \
+  curl -o \
+    /tmp/mylar3.tar.gz -L \
+    "https://github.com/mylar3/mylar3/archive/${MYLAR3_RELEASE}.tar.gz" && \
+  tar xf /tmp/mylar3.tar.gz -C \
+    /app/mylar3/ --strip-components=1 && \
+  cd /app/mylar3 && \
+  python3 -m venv /lsiopy && \
+  pip install -U --no-cache-dir \
+    pip \
+    wheel && \
+  pip install --no-cache-dir --find-links https://wheel-index.linuxserver.io/ubuntu/ -r requirements.txt && \
+  printf "Linuxserver.io version: ${VERSION}\nBuild-date: ${BUILD_DATE}" > /build_version && \
+  echo "**** cleanup ****" && \
+  apt-get -y purge \
+    build-essential \
+    libffi-dev \
+    libjpeg9-dev \
+    libwebp-dev \
+    python3-dev \
+    zlib1g-dev && \
+  apt-get -y autoremove && \
+  rm -rf \
+    /tmp/* \
+    /var/lib/apt/lists/* \
+    /var/tmp/* \
+    $HOME/.cache
 
-# It might be better to check out release tags than python3-dev HEAD.
-# For development work I reccomend mounting a full git repo from the
-# docker host over /app/mylar.
-RUN echo "**** install app ****" && \
- git config --global advice.detachedHead false && \
- git clone https://github.com/${ORG}/mylar3.git --depth 1 --branch ${MYLAR_COMMIT} --single-branch /app/mylar
-
-RUN echo "**** install requirements ****" && \
- pip3 install --no-cache-dir -U -r /app/mylar/requirements.txt && \
- rm -rf ~/.cache/pip/*
-
-# TODO image could be further slimmed by moving python wheel building into a
-# build image and copying the results to the final image.
-
-# ports and volumes
 VOLUME /config /comics /downloads
 EXPOSE 8090
 CMD ["python3", "/app/mylar/Mylar.py", "--nolaunch", "--quiet", "--datadir", "/config/mylar"]
