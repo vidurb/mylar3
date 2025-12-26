@@ -25,7 +25,7 @@ RUN \
     MYLAR3_RELEASE=$(curl -sX GET https://api.github.com/repos/mylar3/mylar3/releases/latest \
     | awk '/tag_name/{print $4;exit}' FS='[""]'); \
   fi && \
-  mkdir /app/mylar3 && \
+  mkdir -p /app/mylar3 && \
   curl -o \
     /tmp/mylar3.tar.gz -L \
     "https://github.com/mylar3/mylar3/archive/${MYLAR3_RELEASE}.tar.gz" && \
