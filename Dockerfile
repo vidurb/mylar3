@@ -9,15 +9,15 @@ LABEL version ${BASE_VERSION}_${MYLAR_COMMIT}
 RUN \
 echo "**** install system packages ****" && \
  apk add --no-cache \
- git=2.24.3-r0 \
+ git=2.24.4-r0 \
  # cfscrape dependecies
- nodejs=12.15.0-r1 \
+ nodejs=12.22.6-r0 \
  # unrar-cffi & Pillow dependencies
  build-base=0.5-r1 \
  # unar-cffi dependencies
  libffi-dev=3.2.1-r6 \
  # Pillow dependencies
- zlib-dev=1.2.11-r3 \
+ zlib-dev=1.2.11-r5 \
  jpeg-dev=8-r6
 
 # It might be better to check out release tags than python3-dev HEAD.
