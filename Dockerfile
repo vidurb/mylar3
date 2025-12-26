@@ -11,12 +11,14 @@ RUN \
     libjpeg9-dev \
     libwebp-dev \
     python3-dev \
+    curl \
     zlib1g-dev && \
   echo "**** install runtime packages ****" && \
   apt-get install -y --no-install-recommends \
     libjpeg9 \
     nodejs \
     python3-venv \
+    python3-pip \
     webp \
     unrar \
     zlib1g-dev && \
@@ -33,11 +35,10 @@ RUN \
     /app/mylar3/ --strip-components=1 && \
   cd /app/mylar3 && \
   python3 -m venv /lsiopy && \
-  pip install -U --no-cache-dir \
+  pip3 install -U --no-cache-dir \
     pip \
     wheel && \
-  pip install --no-cache-dir --find-links https://wheel-index.linuxserver.io/ubuntu/ -r requirements.txt && \
-  printf "Linuxserver.io version: ${VERSION}\nBuild-date: ${BUILD_DATE}" > /build_version && \
+  pip3 install --no-cache-dir -r requirements.txt && \
   echo "**** cleanup ****" && \
   apt-get -y purge \
     build-essential \
