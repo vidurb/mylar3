@@ -2,10 +2,10 @@ name: CI/CD
 
 on:
   push:
-    branches: [ "main", "master", "dev" ]
-    tags: [ "v*" ]
+    branches: ["main", "master", "dev"]
+    tags: ["v*"]
   pull_request:
-    branches: [ "main", "master", "dev" ]
+    branches: ["main", "master", "dev"]
 
 env:
   REGISTRY_GHCR: ghcr.io
@@ -69,7 +69,5 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          target: production
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
