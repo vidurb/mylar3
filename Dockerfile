@@ -56,4 +56,4 @@ RUN \
 
 VOLUME /config /comics /downloads
 EXPOSE 8090
-CMD ["python3", "/app/mylar/Mylar.py", "--nolaunch", "--quiet", "--datadir", "/config/mylar"]
+CMD ["python3", "/app/mylar3/Mylar.py", "--nolaunch", "--quiet", "--datadir", "/config"]
